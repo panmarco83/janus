@@ -119,7 +119,7 @@ public:
     bool GetPrivateWebsurfacesVisible() const;
     void DrawPrivateWebsurfacesGL(QPointer <AssetShader> shader);
     void UpdatePrivateWebsurfaces();
-
+    
     void Update();
 
     void UpdateMultiplayer();

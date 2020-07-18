@@ -117,14 +117,14 @@ void Game::AddPrivateWebsurface()
     p.obj->SetType(TYPE_OBJECT);
     p.obj->SetInterfaceObject(true);
     p.obj->GetProperties()->SetID("plane");
-    p.obj->GetProperties()->SetJSID("__plane" + QString::number(index));
+    //p.obj->GetProperties()->SetJSID("__plane" + QString::number(index));
+    p.obj->GetProperties()->SetJSID("pws__plane" + QString::number(index));
     p.obj->GetProperties()->SetLighting(false);
     p.obj->GetProperties()->SetWebsurfaceID("__web_id" + QString::number(index));
     p.obj->GetProperties()->SetCullFace("none");
     p.obj->GetProperties()->SetVisible("false");
     p.obj->SetAssetObject(p.plane_obj);
     p.obj->SetAssetWebSurface(p.asset);
-
     private_websurfaces.push_back(p);
 }
 
@@ -1197,7 +1197,6 @@ void Game::mouseReleaseEvent(QMouseEvent * e, const int cursor_index, const QSiz
     case JVR_STATE_DEFAULT:
     {
         if (e->button() == Qt::LeftButton) {
-
             r->CallJSFunction("room.onMouseUp", player, multi_players);
             r->CallJSFunction("room.onClick", player, multi_players);
 
@@ -1405,7 +1404,6 @@ void Game::keyPressEvent(QKeyEvent * e)
         }
     }
 
-    //qDebug() << "Game::keyPressEvent" << e->key() << keys[Qt::Key_Shift] << keys[Qt::Key_Tab] << e->matches(QKeySequence::StandardKey )
     QPointer <Room> r = env->GetCurRoom();
 
     switch (e->key()) {
@@ -1416,32 +1414,47 @@ void Game::keyPressEvent(QKeyEvent * e)
         }
         return;
 
-    case Qt::Key_AsciiTilde:
-        if (!GetPlayerEnteringText() && !e->isAutoRepeat()) {
-            //remove
-            RemovePrivateWebsurface();
-            ClearSelection(0);
-            ClearSelection(1);
+    //case Qt::Key_AsciiTilde:
+    case Qt::Key_Minus:
+        if (keys[Qt::Key_Control]) {
+            if (!GetPlayerEnteringText() && !e->isAutoRepeat()) {
+                //remove
+                RemovePrivateWebsurface();
+                ClearSelection(0);
+                ClearSelection(1);
+            }
         }
         break;
 
-    case Qt::Key_QuoteLeft:
-        if (!GetPlayerEnteringText() && !e->isAutoRepeat()) {
-            if (GetPrivateWebsurfacesVisible()) {
-                //surfaces already visible, just add another
-                AddPrivateWebsurface();
-                SetPrivateWebsurfacesVisible(true);
-            }
-            else {
-                //surfaces not visible.  if none, create, if some, just show
-                if (private_websurfaces.isEmpty()) {
+    //case Qt::Key_QuoteLeft:
+    case Qt::Key_Plus:
+        if (keys[Qt::Key_Control]) {
+            if (!GetPlayerEnteringText() && !e->isAutoRepeat()) {
+                if (GetPrivateWebsurfacesVisible()) {
+                    //surfaces already visible, just add another
                     AddPrivateWebsurface();
+                    SetPrivateWebsurfacesVisible(true);
                 }
-                SetPrivateWebsurfacesVisible(true);
-            }
+                else {
+                    //surfaces not visible.  if none, create, if some, just show
+                    if (private_websurfaces.isEmpty()) {
+                        AddPrivateWebsurface();
+                    }
+                    SetPrivateWebsurfacesVisible(true);
+                }
 
-            ClearSelection(0);
-            ClearSelection(1);
+                ClearSelection(0);
+                ClearSelection(1);
+            }
+        }
+        break;
+
+    case Qt::Key_Bar:
+        if ( GetPrivateWebsurfacesVisible() ) {
+            SetPrivateWebsurfacesVisible(false);
+        }
+        else {
+            SetPrivateWebsurfacesVisible(true);
         }
         break;
 
@@ -4150,57 +4163,83 @@ QPointer <RoomObject> Game::CreatePortal(const QUrl url, const bool send_multi)
 
 void Game::StartOpInteractionDefault(const int i)
 {
+    QString player_clicked_object = player->GetCursorObject(i);
     QPointer <Room> r = env->GetCurRoom();
-    QPointer <RoomObject> o = r->GetRoomObject(player->GetCursorObject(i));
 
-    //qDebug() << "player->getcursorobject" << player->GetCursorObject(cursor_index) << websurface_selected[cursor_index] << menu.GetWebpage();    
     if (virtualmenu->GetVisible()) {
         virtualmenu->mousePressEvent(player->GetCursorObject(i));
     }
 
-    if (o && o->GetType() == TYPE_OBJECT && o->GetAssetWebSurface()) {
-        websurface_selected[i] = o->GetAssetWebSurface();
+    if ( player_clicked_object.startsWith("pws__plane") ) {
+        qDebug() << "Clicked on Private Web surface";
 
-        //if websurface is still on about:blank, load it
-        //if (websurface_selected[i]->GetURL() == "about:blank") {
-        //    websurface_selected[i]->SetURL(websurface_selected[i]->GetOriginalURL());
-        //}
+        for ( int u=0; u < private_websurfaces.size(); u++ ) {
+            if ( private_websurfaces[u].obj->GetProperties()->GetJSID() == player_clicked_object) {
+                websurface_selected[i] = private_websurfaces[u].obj->GetAssetWebSurface();
+                QPoint cursor_pos(float(websurface_selected[i]->GetProperties()->GetWidth())*cursor_uv[i].x(),
+                                  float(websurface_selected[i]->GetProperties()->GetHeight())*cursor_uv[i].y());
 
-        //TODO - control modifier interaction with websurface to generate portals
-        QPoint cursor_pos(float(websurface_selected[i]->GetProperties()->GetWidth())*cursor_uv[i].x(),
-                          float(websurface_selected[i]->GetProperties()->GetHeight())*cursor_uv[i].y());
+                QMouseEvent e2(QEvent::MouseButtonPress, cursor_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
 
-        QMouseEvent e2(QEvent::MouseButtonPress, cursor_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                //send a click through if there is no thumb/image id, or the surface is already cursoractive
+                if (websurface_selected[i]->GetFocus() || (websurface_selected[i]->GetProperties()->GetThumbID().length() == 0 && websurface_selected[i]->GetProperties()->GetImageID().length() == 0)) {
+                    websurface_selected[i]->mousePressEvent(&e2, i);
+                }
+                if (!websurface_selected[i]->GetFocus()) {
+                    websurface_selected[i]->SetFocus(true); //58.0 - bugfix to make websurfaces active on click for rift/vive
+                }
+            }
+        }
 
-        //send a click through if there is no thumb/image id, or the surface is already cursoractive
-        if (websurface_selected[i]->GetFocus() || (o->GetProperties()->GetThumbID().length() == 0 && o->GetProperties()->GetImageID().length() == 0)) {
+    }
+    else {
+        QPointer <RoomObject> o = r->GetRoomObject(player_clicked_object);
+
+        if (o && o->GetType() == TYPE_OBJECT && o->GetAssetWebSurface()) {
+            
+            websurface_selected[i] = o->GetAssetWebSurface();
+
+            //if websurface is still on about:blank, load it
+            //if (websurface_selected[i]->GetURL() == "about:blank") {
+            //    websurface_selected[i]->SetURL(websurface_selected[i]->GetOriginalURL());
+            //}
+
+            //TODO - control modifier interaction with websurface to generate portals
+            QPoint cursor_pos(float(websurface_selected[i]->GetProperties()->GetWidth())*cursor_uv[i].x(),
+                              float(websurface_selected[i]->GetProperties()->GetHeight())*cursor_uv[i].y());
+
+            QMouseEvent e2(QEvent::MouseButtonPress, cursor_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+
+            //send a click through if there is no thumb/image id, or the surface is already cursoractive
+            if (websurface_selected[i]->GetFocus() || (o->GetProperties()->GetThumbID().length() == 0 && o->GetProperties()->GetImageID().length() == 0)) {
+                websurface_selected[i]->mousePressEvent(&e2, i);
+            }
+            if (!websurface_selected[i]->GetFocus()) {
+                websurface_selected[i]->SetFocus(true); //58.0 - bugfix to make websurfaces active on click for rift/vive
+            }
+        }
+        else if (o && (o->GetType() == TYPE_VIDEO || o->GetType() == TYPE_OBJECT) && o->GetAssetVideo()) {
+            video_selected[i] = o->GetAssetVideo();
+            video_selected[i]->SetCursorActive(o->GetMediaContext(), true);
+
+            QPoint cursor_pos(float(video_selected[i]->GetWidth(o->GetMediaContext()))*cursor_uv[i].x(),
+                              float(video_selected[i]->GetHeight(o->GetMediaContext()))*cursor_uv[i].y());
+            QMouseEvent e2(QEvent::MouseButtonPress, cursor_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+            video_selected[i]->mousePressEvent(o->GetMediaContext(), &e2);
+        }
+        else if (websurface_selected[i]) {
+            QPoint cursor_pos(float(websurface_selected[i]->GetProperties()->GetWidth())*cursor_uv[i].x(),
+                              float(websurface_selected[i]->GetProperties()->GetHeight())*cursor_uv[i].y());
+            QMouseEvent e2(QEvent::MouseButtonPress, cursor_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
             websurface_selected[i]->mousePressEvent(&e2, i);
         }
-        if (!websurface_selected[i]->GetFocus()) {
-            websurface_selected[i]->SetFocus(true); //58.0 - bugfix to make websurfaces active on click for rift/vive
-        }
-    }
-    else if (o && (o->GetType() == TYPE_VIDEO || o->GetType() == TYPE_OBJECT) && o->GetAssetVideo()) {
-        video_selected[i] = o->GetAssetVideo();
-        video_selected[i]->SetCursorActive(o->GetMediaContext(), true);
 
-        QPoint cursor_pos(float(video_selected[i]->GetWidth(o->GetMediaContext()))*cursor_uv[i].x(),
-                          float(video_selected[i]->GetHeight(o->GetMediaContext()))*cursor_uv[i].y());
-        QMouseEvent e2(QEvent::MouseButtonPress, cursor_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-        video_selected[i]->mousePressEvent(o->GetMediaContext(), &e2);
-    }
-    else if (websurface_selected[i]) {
-        QPoint cursor_pos(float(websurface_selected[i]->GetProperties()->GetWidth())*cursor_uv[i].x(),
-                          float(websurface_selected[i]->GetProperties()->GetHeight())*cursor_uv[i].y());
-        QMouseEvent e2(QEvent::MouseButtonPress, cursor_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-        websurface_selected[i]->mousePressEvent(&e2, i);
-    }
-
-    //59.3 - make any websurfaces in the room cursor active false (60.0 - only if we didn't click keyboard) (62.0 - refactored into VirtualMenu)
-    if (!(virtualmenu->GetVisible() && virtualmenu->GetMenuIndex() == VirtualMenuIndex_KEYBOARD)) {
-        for (QPointer <AssetWebSurface> & aw : r->GetAssetWebSurfaces()) {
-            if (aw && aw != websurface_selected[i]) {
-                aw->SetFocus(false);
+        //59.3 - make any websurfaces in the room cursor active false (60.0 - only if we didn't click keyboard) (62.0 - refactored into VirtualMenu)
+        if (!(virtualmenu->GetVisible() && virtualmenu->GetMenuIndex() == VirtualMenuIndex_KEYBOARD)) {
+            for (QPointer <AssetWebSurface> & aw : r->GetAssetWebSurfaces()) {
+                if (aw && aw != websurface_selected[i]) {
+                    aw->SetFocus(false);
+                }
             }
         }
     }
