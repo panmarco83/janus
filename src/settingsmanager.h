@@ -77,6 +77,9 @@ public:
     static bool GetUpdateCustomAvatars();  
 
     static QVariantMap settings;
+
+    static QString GetPrivateWebSurfaceKey();
+    static void SetPrivateWebSurfaceKey(const QVariant new_key);
 };
 
 #endif // SETTINGSMANAGER_H

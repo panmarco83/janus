@@ -61,6 +61,7 @@ void SettingsManager::LoadSettings()
     settings["renderportalrooms"] = true;
     settings["pathtovoicefiles"] = QString("assets/sounds/voices/");
     settings["selectedvoice"] = QString("assets/sounds/voices/Female/en-US/female/");
+    settings["toggleprivatewebsurfaces"] = "|";
 
     const QString filename = MathUtil::GetAppDataPath() + "settings.json";
 
@@ -386,4 +387,15 @@ QString SettingsManager::GetSelectedVoice()
 void SettingsManager::SetSelectedVoice( const QString new_voice )
 {
     settings["selectedvoice"] = new_voice;
+}
+
+QString SettingsManager::GetPrivateWebSurfaceKey()
+{
+
+    return settings["toggleprivatewebsurfaces"].toString();
+}
+
+void SettingsManager::SetPrivateWebSurfaceKey( const QVariant new_key )
+{
+
 }
