@@ -61,7 +61,15 @@ void SettingsManager::LoadSettings()
     settings["renderportalrooms"] = true;
     settings["pathtovoicefiles"] = QString("assets/sounds/voices/");
     settings["selectedvoice"] = QString("assets/sounds/voices/Female/en-US/female/");
-    settings["toggleprivatewebsurfaces"] = "|";
+    settings["privatewebsurfacetogglevisible"] = "|";
+    settings["privatewebsurfacemoveupkey"] = "+";
+    settings["privatewebsurfacemovedownkey"] = "-";
+    settings["privatewebsurfaceyposition"] = 1.0f;
+    settings["privatewebsurfaceresolutionwidth"] = 1366;
+    settings["privatewebsurfaceresolutionheight"] = 768;
+    settings["privatewebsurfacescalewidth"] = 0.8f;
+    settings["privatewebsurfacescaleheight"] = 0.45f;
+
 
     const QString filename = MathUtil::GetAppDataPath() + "settings.json";
 
@@ -389,13 +397,82 @@ void SettingsManager::SetSelectedVoice( const QString new_voice )
     settings["selectedvoice"] = new_voice;
 }
 
-QString SettingsManager::GetPrivateWebSurfaceKey()
+QString SettingsManager::GetPrivateWebSurfaceToggleKey()
 {
-
-    return settings["toggleprivatewebsurfaces"].toString();
+    return settings["privatewebsurfacetogglevisible"].toString();
 }
 
-void SettingsManager::SetPrivateWebSurfaceKey( const QVariant new_key )
+void SettingsManager::SetPrivateWebSurfaceToggleKey( const QVariant new_key )
 {
+    settings["privatewebsurfacetogglevisible"] = new_key.toString();
+}
 
+QString SettingsManager::GetPrivateWebSurfaceMoveUpKey()
+{
+    return settings["privatewebsurfacemoveupkey"].toString();
+}
+
+void SettingsManager::SetPrivateWebSurfaceMoveUpKey( const QVariant new_key )
+{
+    settings["privatewebsurfacemoveupkey"] = new_key.toString();
+}
+
+QString SettingsManager::GetPrivateWebSurfaceMoveDownKey()
+{
+    return settings["privatewebsurfacemovedownkey"].toString();
+}
+
+void SettingsManager::SetPrivateWebSurfaceMoveDownKey( const QVariant new_key )
+{
+    settings["privatewebsurfacemovedownkey"] = new_key.toString();
+}
+
+float SettingsManager::GetPrivateWebSurfaceYPosition()
+{
+    return settings["privatewebsurfaceyposition"].toFloat();
+}
+
+void SettingsManager::SetPrivateWebSurfaceYPosition( const float new_pos )
+{
+    settings["privatewebsurfaceyposition"] = new_pos;
+}
+
+int SettingsManager::GetPrivateWebSurfaceResolutionWidth()
+{
+    return settings["privatewebsurfaceresolutionwidth"].toInt();
+}
+
+void SettingsManager::SetPrivateWebSurfaceResolutionWidth( const int new_width )
+{
+    settings["privatewebsurfaceresolutionwidth"] = new_width;
+}
+
+int SettingsManager::GetPrivateWebSurfaceResolutionHeight()
+{
+    return settings["privatewebsurfaceresolutionheight"].toInt();
+}
+
+void SettingsManager::SetPrivateWebSurfaceResolutionHeight( const int new_height )
+{
+    settings["privatewebsurfaceresolutionheight"] = new_height;
+}
+
+float SettingsManager::GetPrivateWebSurfaceScaleWidth()
+{
+    return settings["privatewebsurfacescalewidth"].toFloat();
+}
+
+void SettingsManager::SetPrivateWebSurfaceScaleWidth( const float new_scale_width )
+{
+    settings["privatewebsurfacescalewidth"] = new_scale_width;
+}
+
+float SettingsManager::GetPrivateWebSurfaceScaleHeight()
+{
+    return settings["privatewebsurfacescaleheight"].toFloat();
+}
+
+void SettingsManager::SetPrivateWebSurfaceScaleHeight( const float new_scale_height )
+{
+    settings["privatewebsurfacescaleheight"] = new_scale_height;
 }

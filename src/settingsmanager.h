@@ -78,8 +78,23 @@ public:
 
     static QVariantMap settings;
 
-    static QString GetPrivateWebSurfaceKey();
-    static void SetPrivateWebSurfaceKey(const QVariant new_key);
+    static QString GetPrivateWebSurfaceToggleKey();
+    static void SetPrivateWebSurfaceToggleKey( const QVariant new_key );
+    static QString GetPrivateWebSurfaceMoveUpKey();
+    static void SetPrivateWebSurfaceMoveUpKey( const QVariant new_key );
+    static QString GetPrivateWebSurfaceMoveDownKey();
+    static void SetPrivateWebSurfaceMoveDownKey( const QVariant new_key );
+    static float GetPrivateWebSurfaceYPosition();
+    static void SetPrivateWebSurfaceYPosition( const float new_pos );
+    static int GetPrivateWebSurfaceResolutionWidth();
+    static void SetPrivateWebSurfaceResolutionWidth( const int new_width );
+    static int GetPrivateWebSurfaceResolutionHeight();
+    static void SetPrivateWebSurfaceResolutionHeight( const int new_height );
+    static float GetPrivateWebSurfaceScaleWidth();
+    static void SetPrivateWebSurfaceScaleWidth( const float new_scale_width );
+    static float GetPrivateWebSurfaceScaleHeight();
+    static void SetPrivateWebSurfaceScaleHeight( const float new_scale_height );
+
 };
 
 #endif // SETTINGSMANAGER_H
