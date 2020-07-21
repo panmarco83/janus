@@ -102,10 +102,13 @@ void Game::AddPrivateWebsurface()
 
     const QString u = SettingsManager::GetWebsurfaceURL();
 
+    int PrivateWebsurfaceResolutionW = SettingsManager::GetPrivateWebSurfaceResolutionWidth();
+    int PrivateWebsurfaceResolutionH = SettingsManager::GetPrivateWebSurfaceResolutionHeight();
+
     p.asset = new AssetWebSurface();
     p.asset->GetProperties()->SetID("__web_id");
-    p.asset->GetProperties()->SetWidth(1366);
-    p.asset->GetProperties()->SetHeight(768);
+    p.asset->GetProperties()->SetWidth(PrivateWebsurfaceResolutionW);
+    p.asset->GetProperties()->SetHeight(PrivateWebsurfaceResolutionH);
     p.asset->GetProperties()->SetSaveToMarkup(false);
     p.asset->SetSrc(u, u);
 
@@ -117,7 +120,6 @@ void Game::AddPrivateWebsurface()
     p.obj->SetType(TYPE_OBJECT);
     p.obj->SetInterfaceObject(true);
     p.obj->GetProperties()->SetID("plane");
-    //p.obj->GetProperties()->SetJSID("__plane" + QString::number(index));
     p.obj->GetProperties()->SetJSID("pws__plane" + QString::number(index));
     p.obj->GetProperties()->SetLighting(false);
     p.obj->GetProperties()->SetWebsurfaceID("__web_id" + QString::number(index));
@@ -155,6 +157,10 @@ void Game::RemovePrivateWebsurface()
 
 void Game::SetPrivateWebsurfacesVisible(const bool b)
 {
+    float PrivateWebsurfaceYPos = SettingsManager::GetPrivateWebSurfaceYPosition();
+    float PrivateWebsurfaceScaleW = SettingsManager::GetPrivateWebSurfaceScaleWidth();
+    float PrivateWebsurfaceScaleH = SettingsManager::GetPrivateWebSurfaceScaleHeight();
+
     for (int i=0; i<private_websurfaces.size(); ++i) {
         QPointer <RoomObject> o = private_websurfaces[i].obj;
         if (o) {
@@ -162,14 +168,17 @@ void Game::SetPrivateWebsurfacesVisible(const bool b)
                 QMatrix4x4 xform = player->GetTransform();
                 const float angle = -(float(i%5) - float(qMin(private_websurfaces.size()-1, 4))/2.0f) * 45.0f;
                 xform.rotate(angle, 0, 1, 0);
-                xform.translate(0,player->GetProperties()->GetEyePoint().y()
-                                - player->GetProperties()->GetPos()->toQVector3D().y() + (i/5) * 0.5f - 0.2f,-1.0f);
+                xform.translate(
+                    0,
+                    player->GetProperties()->GetEyePoint().y() - player->GetProperties()->GetPos()->toQVector3D().y() + (i/5) * 0.5f - 0.2f,
+                    -1.0f
+                );
 
-                o->GetProperties()->SetPos(xform.map(QVector3D(0,0,0)));
+                o->GetProperties()->SetPos(xform.map(QVector3D(0,PrivateWebsurfaceYPos,0)));
                 o->GetProperties()->SetXDir(xform.mapVector(QVector3D(1,0,0)));
                 o->GetProperties()->SetYDir(xform.mapVector(QVector3D(0,1,0)));
                 o->GetProperties()->SetZDir(xform.mapVector(QVector3D(0,0,1)));
-                o->GetProperties()->SetScale(QVector3D(0.8f, 0.45f, 1.0f));
+                o->GetProperties()->SetScale(QVector3D(PrivateWebsurfaceScaleW, PrivateWebsurfaceScaleH, 1.0f));
             }
             o->GetProperties()->SetVisible(b);
         }

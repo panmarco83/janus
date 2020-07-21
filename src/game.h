@@ -285,6 +285,11 @@ private:
     QMatrix4x4 dragdrop_xform;
 
     QList <PrivateWebsurface> private_websurfaces;
+    /*float PrivateWebsurfaceYPos;
+    int PrivateWebsurfaceResolutionW;
+    int PrivateWebsurfaceResolutionH;
+    float PrivateWebsurfaceScaleW;
+    float PrivateWebsurfaceScaleH;*/
 
     QList <QPointer <WebAsset> > import_list; //contains list of queued HTML files to load containing JML
 
