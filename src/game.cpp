@@ -102,18 +102,15 @@ void Game::AddPrivateWebsurface()
 
     const QString u = SettingsManager::GetWebsurfaceURL();
 
-    int PrivateWebsurfaceResolutionW = SettingsManager::GetPrivateWebSurfaceResolutionWidth();
-    int PrivateWebsurfaceResolutionH = SettingsManager::GetPrivateWebSurfaceResolutionHeight();
-
     p.asset = new AssetWebSurface();
     p.asset->GetProperties()->SetID("__web_id");
-    p.asset->GetProperties()->SetWidth(PrivateWebsurfaceResolutionW);
-    p.asset->GetProperties()->SetHeight(PrivateWebsurfaceResolutionH);
-    p.asset->GetProperties()->SetSaveToMarkup(false);
+    p.asset->GetProperties()->SetWidth( SettingsManager::GetPrivateWebSurfaceResolutionWidth() );
+    p.asset->GetProperties()->SetHeight( SettingsManager::GetPrivateWebSurfaceResolutionHeight() );
+    p.asset->GetProperties()->SetSaveToMarkup( false );
     p.asset->SetSrc(u, u);
 
     p.plane_obj = new AssetObject();
-    p.plane_obj->SetSrc(MathUtil::GetApplicationURL(), "assets/primitives/plane.obj");
+    p.plane_obj->SetSrc( MathUtil::GetApplicationURL(), "assets/primitives/plane.obj" );
     p.plane_obj->Load();
 
     p.obj = new RoomObject();
@@ -157,10 +154,6 @@ void Game::RemovePrivateWebsurface()
 
 void Game::SetPrivateWebsurfacesVisible(const bool b)
 {
-    float PrivateWebsurfaceYPos = SettingsManager::GetPrivateWebSurfaceYPosition();
-    float PrivateWebsurfaceScaleW = SettingsManager::GetPrivateWebSurfaceScaleWidth();
-    float PrivateWebsurfaceScaleH = SettingsManager::GetPrivateWebSurfaceScaleHeight();
-
     for (int i=0; i<private_websurfaces.size(); ++i) {
         QPointer <RoomObject> o = private_websurfaces[i].obj;
         if (o) {
@@ -174,11 +167,12 @@ void Game::SetPrivateWebsurfacesVisible(const bool b)
                     -1.0f
                 );
 
-                o->GetProperties()->SetPos(xform.map(QVector3D(0,PrivateWebsurfaceYPos,0)));
-                o->GetProperties()->SetXDir(xform.mapVector(QVector3D(1,0,0)));
-                o->GetProperties()->SetYDir(xform.mapVector(QVector3D(0,1,0)));
-                o->GetProperties()->SetZDir(xform.mapVector(QVector3D(0,0,1)));
-                o->GetProperties()->SetScale(QVector3D(PrivateWebsurfaceScaleW, PrivateWebsurfaceScaleH, 1.0f));
+                o->GetProperties()->SetPos( xform.map( QVector3D( 0, 0, 0 ) ) );
+                o->GetProperties()->SetXDir( xform.mapVector( QVector3D( 1, 0, 0 ) ) );
+                o->GetProperties()->SetYDir( xform.mapVector( QVector3D( 0, 1, 0 ) ) );
+                o->GetProperties()->SetZDir( xform.mapVector( QVector3D( 0, 0, 1 ) ) );
+                o->GetProperties()->SetScale( QVector3D( SettingsManager::GetPrivateWebSurfaceScaleWidth(), SettingsManager::GetPrivateWebSurfaceScaleHeight(), 1.0f ) );
+                o->GetProperties()->SetPos( QVector3D( o->GetProperties()->GetPos()->toQVector3D()[0], SettingsManager::GetPrivateWebSurfaceYPosition(), o->GetProperties()->GetPos()->toQVector3D()[1] ) );
             }
             o->GetProperties()->SetVisible(b);
         }
@@ -199,15 +193,20 @@ void Game::UpdatePrivateWebsurfaces()
 {
     for (int i=0; i<private_websurfaces.size(); ++i) {
         QPointer <AssetWebSurface> a = private_websurfaces[i].asset;
+        QPointer <RoomObject> o = private_websurfaces[i].obj;
         if (a) {
             if (!a->GetStarted()) {
                 a->SetStarted(true);
                 a->Load();
+                
             }
             if (a->GetWebView()) {
                 a->GetWebView()->update();
             }
             a->UpdateGL();
+            QVector3D tmp_pws_pos = o->GetProperties()->GetPos()->toQVector3D();
+            tmp_pws_pos[1] = SettingsManager::GetPrivateWebSurfaceYPosition();
+            o->GetProperties()->SetPos( QVector3D( o->GetProperties()->GetPos()->toQVector3D()[0], SettingsManager::GetPrivateWebSurfaceYPosition(), o->GetProperties()->GetPos()->toQVector3D()[1] ) );
         }
     }
 }
@@ -1425,7 +1424,7 @@ void Game::keyPressEvent(QKeyEvent * e)
 
     //case Qt::Key_AsciiTilde:
     case Qt::Key_Minus:
-        if (keys[Qt::Key_Control]) {
+        if ( keys[ Qt::Key_Control ] ) {
             if (!GetPlayerEnteringText() && !e->isAutoRepeat()) {
                 //remove
                 RemovePrivateWebsurface();
@@ -1433,11 +1432,14 @@ void Game::keyPressEvent(QKeyEvent * e)
                 ClearSelection(1);
             }
         }
+        if ( keys[ Qt::Key_Shift ] ) {
+            SettingsManager::SetPrivateWebSurfaceYPosition( SettingsManager::GetPrivateWebSurfaceYPosition() - 0.05f );
+        }
         break;
 
     //case Qt::Key_QuoteLeft:
     case Qt::Key_Plus:
-        if (keys[Qt::Key_Control]) {
+        if ( keys[ Qt::Key_Control ] ) {
             if (!GetPlayerEnteringText() && !e->isAutoRepeat()) {
                 if (GetPrivateWebsurfacesVisible()) {
                     //surfaces already visible, just add another
@@ -1455,6 +1457,9 @@ void Game::keyPressEvent(QKeyEvent * e)
                 ClearSelection(0);
                 ClearSelection(1);
             }
+        }
+        if ( keys[Qt::Key_Shift] ) {
+            SettingsManager::SetPrivateWebSurfaceYPosition( SettingsManager::GetPrivateWebSurfaceYPosition() + 0.05f );
         }
         break;
 

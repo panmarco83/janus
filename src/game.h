@@ -302,6 +302,8 @@ private:
 
     QTime deltat_time;
     float delta_time;
+
+    float private_websurface_y_position;
 };
 
 #endif // GAME_H
