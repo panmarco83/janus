@@ -1,6 +1,6 @@
 Normal interaction:
 
-| Key Function | Description | Key | Alternative Key |
+| Key Function | Description | Key/Button | Alternative Key |
 | --- | --- | --- | --- |
 | Jump | Jump | `Space` | |
 | Toggle Flymode |  | `F` |
@@ -19,8 +19,8 @@ Normal interaction:
 | Speak | (VoIP when Voice activated is disabled) | `V` |  |
 | Save room markup code |  | `Ctrl+S` |  |
 | Copy selected item/object |  | `Ctrl+C` |  |
-| Paste copied item/object | `Ctrl+V` |  |
-| Back to previous room/URL |  | `Backspace` |
-| Teleport to cursor |  | `Middle Mouse button (Scroll wheel)` |
+| Paste copied item/object |  | `Ctrl+V` |  |
+| Back to previous room/URL |  | `Backspace` |  |
+| Teleport to cursor |  | `Middle Mouse button (Scroll wheel)` |  |
 
 
