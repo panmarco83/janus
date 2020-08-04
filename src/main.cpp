@@ -182,8 +182,8 @@ int main(int argc, char *argv[])
     format.setSwapBehavior(QSurfaceFormat::TripleBuffer);
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(8);
-    format.setMajorVersion(3); //66.0 - ensure that default vertex/fragment shaders are supported (GLSL 330)
-    format.setMinorVersion(3);
+    format.setMajorVersion(4); //66.0 - ensure that default vertex/fragment shaders are supported (GLSL 330)
+    format.setMinorVersion(6);
     format.setProfile(QSurfaceFormat::CoreProfile);
     if (GLWidget::GetNoVSync() || GLWidget::GetDisplayMode() == MODE_AUTO) {
         format.setSwapInterval(0); //this disables vsync
