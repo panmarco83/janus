@@ -659,7 +659,7 @@ void VirtualMenu::ConstructSubmenus()
     ConstructSubmenuBookmarks();
     ConstructSubmenuAvatar();
     ConstructSubmenuSearch();
-    ConstructSubmenuSocial();
+    //ConstructSubmenuSocial();
     ConstructSubmenuKeyboard();
 }
 
@@ -707,8 +707,8 @@ void VirtualMenu::ConstructSubmenuMain()
     AddNewButton(VirtualMenuIndex_MAIN, "__search", "Search", m);
     m.translate(0,-0.25f,0);
 
-    AddNewButton(VirtualMenuIndex_MAIN, "__social", "Social", m);
-    m.translate(0,-0.25f,0);
+    //AddNewButton(VirtualMenuIndex_MAIN, "__social", "Social", m);
+    //m.translate(0,-0.25f,0);
 
     AddNewButton(VirtualMenuIndex_MAIN, "__exit", "Exit", m);
     m.translate(0,-0.25f,0);
@@ -795,6 +795,9 @@ void VirtualMenu::ConstructSubmenuBookmarks()
             QMap <QString, QVariant> o = list[i].toMap();
             const QString url = o["url"].toString();
             const QString thumbnail = o["thumbnail"].toString();
+            //qDebug() << list[i];
+            // TODO: Check if room path is URL or FS path, then if FS path, look for thumbnail file in folder.
+            // TODO: If thumbnail found ("w_thumb.*" to be able to use png,jpg,bmp etc), get path and forward to AddNewImageButton()
             AddNewImageButton(VirtualMenuIndex_BOOKMARKS, "__bookmark" + QString::number(i), url, thumbnail, m);
         }
     }
