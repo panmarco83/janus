@@ -798,6 +798,8 @@ void VirtualMenu::ConstructSubmenuBookmarks()
             //qDebug() << list[i];
             // TODO: Check if room path is URL or FS path, then if FS path, look for thumbnail file in folder.
             // TODO: If thumbnail found ("w_thumb.*" to be able to use png,jpg,bmp etc), get path and forward to AddNewImageButton()
+            // QVariant(QVariantMap, QMap(("thumbnail", QVariant(QString, "file:///home/source/janus/assets/3dui/thumbs/32.jpg"))("title", QVariant(QString, "JanusVR Help"))("url", QVariant(QString, "https://janusvr.com/help"))))
+            //QVariant(QVariantMap, QMap(("thumbnail", QVariant(QString, ""))("title", QVariant(QString, ""))("url", QVariant(QString, "/home/source/janusvr/workspaces/ant/ant.html"))))
             AddNewImageButton(VirtualMenuIndex_BOOKMARKS, "__bookmark" + QString::number(i), url, thumbnail, m);
         }
     }
